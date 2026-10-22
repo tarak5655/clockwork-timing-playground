@@ -1,0 +1,37 @@
+.page-heading{gap:20px;align-items:center;flex-wrap:wrap}
+.page-heading h1{font-size:28px;line-height:1.2;max-width:640px;overflow-wrap:anywhere}
+.heading-actions{flex-wrap:wrap}
+.topbar{height:auto;min-height:83px;flex-wrap:wrap;padding-block:14px}
+.top-actions{gap:12px;flex-wrap:wrap}
+.workbench,.visual-column,.controls,.control-group,.calculations{min-width:0;max-width:100%}
+.group-title{flex-wrap:wrap;gap:6px}
+#element-name{overflow-wrap:anywhere}
+.phase-control{display:grid;gap:8px;font-size:12px}
+.phase-control select{width:100%;min-width:0}
+.circuit-scroll,.timeline-scroll,.table-scroll,.expanded-scroll{max-width:100%;overflow-x:auto}
+.capture-timing .circuit-mono{font-size:9px}
+.calculations{margin-top:28px;border-top:2px solid var(--line);padding:12px 0 28px}
+.calculations .section-bar{padding-inline:0}
+.rounding-notice{color:var(--muted);font:11px/1.7 var(--mono);margin:8px 0 18px}
+#calculation-context{font-size:13px;line-height:1.8}
+#calculation-context p{margin-bottom:12px}
+.calculation-check{padding:22px 0;border-top:1px solid var(--line)}
+.calculation-check h3{font-size:18px;margin-bottom:10px}
+.calculation-check h4{font-size:14px;margin:0 0 8px}
+.critical-selection{font:12px/1.8 var(--mono);margin-bottom:16px}
+.calculation-scroll{width:100%;max-width:100%;min-width:0;overflow-x:auto;margin:14px 0 20px;border-block:1px solid var(--line)}
+.calculation-table{width:100%;min-width:740px;border-collapse:collapse;table-layout:fixed;font:12px/1.7 var(--mono)}
+.calculation-table caption{text-align:left;padding:12px;font-weight:700;color:var(--ink);background:#edf3f5}
+.calculation-table th,.calculation-table td{padding:10px 12px;border-bottom:1px solid var(--line);white-space:normal;overflow-wrap:anywhere;text-align:left;vertical-align:top}
+.calculation-table thead th{background:#f3f6f5;color:var(--muted);font-size:11px}
+.calculation-table th:first-child{width:25%}
+.calculation-table th:nth-child(2){width:43%}
+.calculation-table tbody th{font-weight:500}
+.calculation-table td:nth-child(n+3),.calculation-table thead th:nth-child(n+3),.calculation-table tfoot td{text-align:right;font-variant-numeric:tabular-nums}
+.calculation-table tfoot{font-weight:700;background:#edf3f5}
+.calculation-table tbody tr:nth-child(even){background:#f8faf9}
+.opening-comparison{border-left:3px solid #b79225;padding-left:16px;margin:18px 0;font-size:13px;line-height:1.8}
+.calculation-slack{font:13px/1.8 var(--mono);border-top:1px solid var(--line);padding-top:12px}
+.calculation-warning{border-left:3px solid #b83f3d;padding:10px 14px;background:var(--red-soft);color:#963632}
+.calculations p,.equation,.circuit-footer{overflow-wrap:anywhere}
+@media(max-width:720px){.page-heading h1{font-size:24px}.calculation-check h3{font-size:16px}.calculations .section-bar h2{font-size:16px}.opening-comparison{padding-left:10px}.top-actions{gap:9px}.version-link{font-size:11px}}
