@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#16765b">
+  <title>Clockwork V2 | Cell Lab</title>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="style.css">
+  <script src="../timing.js" defer></script>
+  <script src="timing.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="index.html" aria-label="Clockwork V2 home"><span class="brand-mark" aria-hidden="true">C<span></span></span><span>CLOCKWORK V2<small>CELL-LEVEL TIMING LAB</small></span></a>
+    <nav class="mode-switch" aria-label="Play mode">
+      <button class="active" data-mode="sandbox" aria-pressed="true">Sandbox</button>
+      <button data-mode="challenge" aria-pressed="false">Challenges <span class="count">5</span></button>
+    </nav>
+    <div class="top-actions"><a href="../index.html" class="version-link">Version 1</a><button id="reset" class="icon-button" title="Reset V2 circuit" aria-label="Reset V2 circuit">&#8634;</button></div>
+  </header>
+
+  <main>
+    <section class="page-heading">
+      <div><p class="eyebrow">VERSION 02 / CELL-LEVEL STATIC TIMING</p><h1>Inside every timing path.</h1><p class="subheading">Logic cells. Clock buffers. One shared timing budget.</p></div>
+      <div class="heading-actions"><span id="save-status">Sandbox autosaved</span><button id="undo" class="quiet-button" title="Undo last change">&#8617; Undo</button><button id="pulse" class="primary-button"><span aria-hidden="true">&#9654;</span> Launch pulse</button></div>
+    </section>
+
+    <section id="mission" class="mission" hidden aria-label="Current challenge">
+      <div class="mission-top"><div><p class="eyebrow" id="mission-number"></p><h2 id="mission-title"></h2></div><div class="mission-navigation"><button id="previous-mission" class="icon-button" aria-label="Previous challenge">&#8592;</button><select id="mission-select" aria-label="Choose challenge"></select><button id="next-mission" class="icon-button" aria-label="Next challenge">&#8594;</button></div></div>
+      <p id="mission-goal"></p><div class="mission-bottom"><span id="mission-status" role="status"></span><span id="moves"></span><button id="hint-button" class="quiet-button">Reveal hint</button></div><p id="hint" hidden></p>
+    </section>
+
+    <section class="scoreboard" aria-label="Timing summary">
+      <div class="score-item"><span>WORST SETUP SLACK</span><strong id="worst-setup"></strong><small>Latest arrival vs. deadline</small></div>
+      <div class="score-item"><span>WORST HOLD SLACK</span><strong id="worst-hold"></strong><small>Earliest arrival vs. hold limit</small></div>
+      <div class="score-item"><span>TIMING CHECKS</span><strong id="checks"></strong><small id="check-caption"></small></div>
+      <div class="score-item clock-score"><span>CLOCK PERIOD</span><strong id="period-display"></strong><small id="frequency"></small></div>
+    </section>
+
+    <div class="workbench">
+      <div class="visual-column">
+        <section class="circuit-section" aria-label="Interactive circuit">
+          <div class="section-bar"><div><span class="section-index">01</span><h2>The circuit</h2></div><div class="circuit-toolbar"><label for="fanout">Fanout</label><select id="fanout"><option value="2">2 branches</option><option value="3" selected>3 branches</option><option value="4">4 branches</option></select></div></div>
+          <div class="circuit-legend"><span><i class="legend-line"></i>Selected path</span><span><i class="legend-clock"></i>Clock network</span><span><i class="legend-dot fail"></i>Violation</span><span><i class="legend-dot latch"></i>Transparent latch</span><span class="unit">ALL DELAYS IN ps</span></div>
+          <div class="circuit-scroll"><svg id="circuit" viewBox="0 0 920 400" role="group" aria-label="Launch flip-flop, capture flip-flops and latches, next-stage flip-flops, and clock distribution with editable delay blocks"></svg></div>
+          <div id="circuit-footer" class="circuit-footer"></div>
+        </section>
+
+        <section class="timeline-section" aria-label="Timing waveforms">
+          <div class="section-bar"><div><span class="section-index">02</span><h2>Race to the edge</h2></div><div class="segmented" aria-label="Check type"><button class="active" data-check="setup" aria-pressed="true">Setup / max</button><button data-check="hold" aria-pressed="false">Hold / min</button></div></div>
+          <div class="timeline-caption"><strong id="timeline-title"></strong><span id="timeline-badge" class="badge"></span></div>
+          <div class="timeline-scroll"><svg id="timeline" viewBox="0 0 900 246" role="img" aria-label="Launch and capture clock waveforms with data arrival and timing margin"></svg></div>
+          <div class="timeline-key"><span><i class="key-swatch arrival"></i>Data arrival</span><span><i class="key-swatch deadline"></i>Required boundary</span><span><i class="key-swatch aperture"></i>Setup + hold aperture</span></div>
+          <div id="equation" class="equation"></div>
+        </section>
+
+        <section class="path-table-section" aria-label="All path checks">
+          <div class="section-bar"><div><span class="section-index">03</span><h2>Path scoreboard</h2></div><span class="unit">NEGATIVE SLACK = VIOLATION</span></div>
+          <div class="table-scroll"><table><thead><tr><th>Path</th><th>Type</th><th>Setup</th><th>Hold</th><th>Borrowed</th><th>Status</th></tr></thead><tbody id="path-table"></tbody></table></div>
+        </section>
+      </div>
+
+      <aside class="controls" aria-label="Timing controls">
+        <div class="controls-heading"><div><p class="eyebrow">ON THE WORKBENCH</p><h2 id="selected-title">Path A / Stage 1</h2></div><span class="selected-tag" id="selected-tag">A1</span></div>
+        <div class="path-selector"><label>Branch<select id="branch-select"></select></label><label>Stage<select id="stage-select"><option value="input">1 / Launch to capture</option><option value="output">2 / Capture to next</option></select></label></div>
+        <div class="control-group"><div class="group-title"><h3>Capture element &amp; clocks</h3><span id="element-name"></span></div><div id="kind-control" class="segmented full"><button data-kind="ff">Flip-flop</button><button data-kind="latch">Latch</button></div><div class="chain-actions"><button id="expand-launch" class="quiet-button">Launch clock chain</button><button id="expand-capture" class="quiet-button">Capture clock chain</button></div><div id="skew-control"></div><div class="skew-scale"><span>Earlier / negative offset</span><span>Later / positive offset</span></div><output id="relative-skew" class="clock-skew-readout" aria-live="polite"></output><p class="clock-offset-note">Clock latency = buffer chain + clock wire + signed offset. Skew = capture latency - launch latency; the 180-degree phase is separate.</p></div>
+        <div class="control-group"><div class="group-title"><h3>Data cells</h3><span id="delay-summary"></span></div><button id="expand-data" class="primary-button full-width">Expand data path</button><div id="path-controls"></div><div class="buffer-control"><div><label>BUF cells</label><small>Individual size / VT in expanded path</small></div><div class="stepper"><button id="remove-buffer" aria-label="Remove last data buffer" title="Remove last data buffer">&#8722;</button><output id="buffer-count">0</output><button id="add-buffer" aria-label="Add data buffer" title="Add data buffer">+</button></div></div><div class="two-controls"><label>All cells / drive<select id="drive-size"><option value="mixed" disabled>Mixed</option><option value="0.5">0.5x</option><option value="1">1x</option><option value="1.5">1.5x</option><option value="2">2x</option><option value="3">3x</option><option value="4">4x</option></select></label><label>All cells / VT<select id="vt"><option value="mixed" disabled>Mixed</option><option>HVT</option><option>SVT</option><option>LVT</option><option>ULVT</option></select></label></div></div>
+        <details class="control-group" open><summary>Clock &amp; margins <span class="scope">GLOBAL</span></summary><div id="clock-controls"></div></details>
+        <details class="control-group"><summary>Noise &amp; variation <span class="scope">GLOBAL</span></summary><div id="noise-controls"></div></details>
+        <details class="control-group" open><summary>Time borrowing <span class="scope">LATCHES</span></summary><label class="toggle-row" for="borrowing"><span>Allow borrowing</span><input id="borrowing" type="checkbox" checked role="switch"></label><div id="borrow-control"></div><div id="borrow-meter" class="borrow-meter"></div></details>
+        <details class="control-group"><summary>Sequential cell timing <span class="scope">GLOBAL</span></summary><div id="cell-controls"></div></details>
+      </aside>
+    </div>
+
+    <section class="explanation" aria-label="Live timing explanation">
+      <div class="explanation-header"><div><p class="eyebrow">THE WHY BEHIND THE NUMBERS</p><h2 id="explanation-title">A little delay changes everything.</h2></div><span class="live-label"><i></i>LIVE ANALYSIS</span></div>
+      <div id="explanation-content" class="explanation-grid" aria-live="polite"></div>
+      <div class="last-change" id="last-change" role="status"></div>
+      <details class="model-notes"><summary>Model assumptions &amp; source reading</summary><div class="notes-grid"><div><h3>Clock edges &amp; uncertainty</h3><p>Launch FF edges are at its clock latency and T + latency. First capture FFs use T + latency; positive-level latches open at T/2 + latency and close at T + latency. Next-stage FFs use a 180-degree clock at 1.5T + latency, with previous hold edge 0.5T + latency. Clock latency includes buffer cells, clock wire and a signed offset. All values are picoseconds.</p><p>Setup margin = setup uncertainty + relative inter-cycle jitter. Hold margin = hold uncertainty + relative same-edge jitter. Jitter is a launch/capture difference bound, not RMS. Do not include it again inside residual uncertainty.</p></div><div><h3>Illustrative cell library</h3><p>At LVT / 1x, min/max delay: BUF 24/40, AND 30/60, OR 32/64, NAND 20/42, NOR 24/48, NOT 12/25 ps. Every cell is scaled independently by VT / sqrt(size): HVT 1.24, SVT 1.12, LVT 1, ULVT 0.82. Clock BUF uses a nominal 32 ps before scaling. Clock delay is deterministic here, not a clock OCV analysis.</p><p>Data minimum wire delay = 55% of maximum wire delay. OCV and noise apply after summing data cells and wire. Fanout adds 3/6 ps min/max per extra branch. Gates represent sensitized timing arcs with noncontrolling side inputs, not a Boolean simulator or a function-preserving ECO. Reordering cells does not change this additive model. There is no slew/load lookup, actual RC, clock CPPR, metastability, pulse-width or cycle re-pairing analysis.</p><p>Borrowing disabled imposes a zero-borrow budget, not an edge-triggered latch. Failed upstream checks make downstream values provisional. Educational model, not signoff STA.</p></div><div><h3>Source reading</h3><ul><li><a href="https://www.vlsi-expert.com/2011/04/static-timing-analysis-sta-basic-part3a.html" target="_blank" rel="noopener noreferrer">Part 3a: Setup and hold</a></li><li><a href="https://www.vlsi-expert.com/2011/04/static-timing-analysis-sta-basic-part3b.html" target="_blank" rel="noopener noreferrer">Part 3b: Timing violations</a></li><li><a href="https://www.vlsi-expert.com/2011/03/static-timing-analysis-sta-basic-part2.html" target="_blank" rel="noopener noreferrer">Part 2: Time borrowing</a></li></ul><p>V2 stores its circuit separately from Version 1.</p></div></div></details>
+    </section>
+    <footer><span>CLOCKWORK <span class="footer-dot">/</span> Learn the tradeoff. Close the timing.</span><span>Educational model <span class="footer-dot">/</span> No design data uploaded</span></footer>
+  </main>
+  <dialog id="path-editor" aria-labelledby="editor-title">
+    <header class="editor-header"><div><p class="eyebrow" id="editor-eyebrow"></p><h2 id="editor-title"></h2></div><div class="editor-actions"><button id="editor-undo" class="icon-button" title="Undo edit" aria-label="Undo edit">&#8617;</button><button id="close-editor" class="icon-button" title="Collapse path" aria-label="Collapse path">&#215;</button></div></header>
+    <div class="editor-metrics" id="editor-metrics" aria-live="polite"></div>
+    <div class="expanded-scroll"><svg id="expanded-chain" role="group" aria-label="Expanded editable cell chain"></svg></div>
+    <div class="cell-palette"><label>Insert cell<select id="new-cell-type"></select></label><button id="insert-cell" class="primary-button">+ Add cell</button><label class="editor-wire-label">Path wire delay (ps)<input id="editor-wire" type="number" min="0" max="600" step="5"></label><span id="cell-count" class="unit"></span></div>
+    <div class="cell-list" id="cell-list"></div>
+    <div class="editor-analysis" id="editor-analysis" aria-live="polite"></div>
+    <footer class="editor-footer"><span>Per-cell illustrative delays / LVT default</span><span>Gate chain: sensitized timing arcs, not Boolean simulation</span></footer>
+  </dialog>
+</body>
+</html>
