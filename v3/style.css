@@ -1,0 +1,21 @@
+.setup-route{border-color:#b15b35!important}.hold-route{border-color:#167c91!important}
+.route-summary-table{width:100%;border-collapse:collapse;table-layout:fixed;font:10px var(--mono)}
+.route-summary-table th,.route-summary-table td{padding:8px 4px;text-align:right;border-bottom:1px solid var(--line);white-space:normal;overflow-wrap:anywhere}
+.route-summary-table th{font-size:8px;font-weight:500;color:var(--muted);background:transparent}
+.route-summary-table th:first-child,.route-summary-table td:first-child{text-align:left;width:40px}
+.route-summary-table th:last-child,.route-summary-table td:last-child{width:72px}
+.route-summary-table tr.current-route{background:#e4f2eb}
+.route-pick{font:11px var(--mono);min-height:30px;padding:2px 7px;background:transparent;border:0}
+.critical-role{display:block;font:8px/1.6 var(--mono)}.setup-critical{color:#a2522f}.hold-critical{color:#126879}
+.route-actions{display:flex;align-items:end;gap:12px;flex-wrap:wrap;margin-top:14px}
+.route-actions label{display:flex;flex-direction:column;gap:5px;font-size:10px;color:var(--muted)}
+.route-actions select{min-width:75px;font-size:11px}.route-actions button{flex:1;font-size:10px;padding:5px 9px}
+.critical-summary{display:block;font:10px/1.9 var(--mono);margin-top:12px;color:var(--muted)}
+.editor-parallel{padding:0 24px 15px;border-bottom:1px solid var(--line);background:#f8fbf9}
+.editor-parallel .route-actions{align-items:center;justify-content:space-between;margin-bottom:10px}
+.editor-parallel .route-actions>span{font:9px var(--mono);color:var(--muted)}
+.editor-parallel .route-summary-table th,.editor-parallel .route-summary-table td{padding:6px 8px}
+.parallel-explanation{font:11px/1.9 var(--mono);border-top:1px solid var(--line);padding-top:15px;margin-top:16px;overflow-wrap:anywhere}
+.route-cell rect{transition:stroke .1s}.route-cell:hover rect{stroke:#16765b;stroke-width:2}
+.critical-cell{display:block;font:8px/1.6 var(--mono);color:var(--muted);margin-top:4px}
+@media(max-width:720px){.editor-parallel{padding:0 15px 12px}.editor-parallel .route-actions>span{font-size:8px;max-width:170px}.parallel-explanation{font-size:10px}.route-summary-table th:last-child,.route-summary-table td:last-child{width:67px}}
