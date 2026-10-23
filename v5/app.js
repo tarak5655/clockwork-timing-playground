@@ -785,7 +785,7 @@
   function advancePlayback(now) {
     if (!playback.playing || playback.last === null) return;
     playback.time = Math.min(playback.bundle.duration, playback.time + Math.max(0, now - playback.last) * playback.period * playback.speed / 6000);
-    playback.last = now;
+    playback.last = Math.max(playback.last, now);
   }
 
   function pausePlayback() {
