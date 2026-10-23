@@ -24,11 +24,14 @@
     const launch = falling(state.launchEdge) * period;
     const latch = branch.kind === 'latch';
     const capturePhase = latch ? branch.latchLevel === 'high' ? 0.5 : 0 : falling(branch.firstEdge);
-    const capture = edgeAfter(launch, capturePhase, period);
-    const open = capture - period / 2;
+    const firstCapture = edgeAfter(launch, capturePhase, period);
+    const holdOpen = firstCapture - period / 2;
+    const open = latch ? edgeAfter(launch, branch.latchLevel === 'high' ? 0 : 0.5, period) : holdOpen;
+    const capture = latch ? open + period / 2 : firstCapture;
     const nextPhase = (branch.nextPhase / 360 + falling(branch.nextEdge)) % 1;
     const next = edgeAfter(latch ? open : capture, nextPhase, period);
-    return { launch, capture, hold: capture - period, open, next, nextHold: next - period };
+    const nextHold = edgeAfter(latch ? holdOpen : firstCapture, nextPhase, period) - period;
+    return { launch, capture, hold: firstCapture - period, open, holdOpen, next, nextHold };
   }
 
   function trace(rows) {
@@ -52,9 +55,11 @@
         term(`${branch.id}1 FF clock-to-Q`, `CQ ${maximum ? 'max' : 'min'}`, state[`cq${suffix}`])];
     } else {
       arrival = view.first.breakdown[maximum ? 'setup' : 'hold'].arrival.rows.map(({ component, expression, value }) => term(component, expression, value));
-      opening = trace(previous.clockTerms(state, `${branch.id}1`, view.schedule.open, `${branch.latchLevel}-level latch opening`));
+      const baseOpen = view.schedule[maximum ? 'open' : 'holdOpen'];
+      const latchOpen = view.first[maximum ? 'open' : 'holdOpen'];
+      opening = trace(previous.clockTerms(state, `${branch.id}1`, baseOpen, `${branch.latchLevel}-level latch ${maximum ? 'setup' : 'hold'} opening`));
       const inputArrival = view.first[`arrival${suffix}`];
-      arrival.push(term('Wait for latch opening', `max(${view.first.open}, ${inputArrival}) - ${inputArrival}`, Math.max(0, view.first.open - inputArrival)));
+      arrival.push(term('Wait for latch opening', `max(${latchOpen}, ${inputArrival}) - ${inputArrival}`, Math.max(0, latchOpen - inputArrival)));
       arrival.push(term('Latch transfer', `DQ ${maximum ? 'max' : 'min'}; max(open, input arrival) + DQ`, state[`dq${suffix}`]));
     }
     arrival.push(...previous.routeTerms(branch[output ? 'output' : 'input'].routes[routeId - 1], state, maximum, `${branch.id}${output ? 2 : 1} P${routeId}`));
@@ -87,6 +92,7 @@
       const arrivalMin = launchMin + input.min;
       const close = edges.capture + clock.skew;
       const open = edges.open + clock.skew;
+      const holdOpen = edges.holdOpen + clock.skew;
       const latch = branch.kind === 'latch';
       const physicalRequired = close - state.setup - setupMargin;
       const allowedBorrow = latch ? Math.max(0, Math.min(state.borrowing ? state.borrowLimit : 0, physicalRequired - open)) : 0;
@@ -97,10 +103,10 @@
       const holdSlack = arrivalMin - holdRequired;
       const valid = setupSlack >= -1e-8 && holdSlack >= -1e-8;
       const first = { arrivalMax, arrivalMin, required, physicalRequired, holdRequired, setupSlack, holdSlack,
-        edge: close, holdEdge, open, close, baseEdge: edges.capture, baseHoldEdge: edges.hold, baseOpen: edges.open,
+        edge: close, holdEdge, open, holdOpen, close, baseEdge: edges.capture, baseHoldEdge: edges.hold, baseOpen: edges.open, baseHoldOpen: edges.holdOpen,
         borrowed: latch ? Math.max(0, arrivalMax - open) : 0, allowedBorrow, valid };
       const qMax = latch ? Math.max(open, arrivalMax) + state.dqMax : close + state.cqMax;
-      const qMin = latch ? Math.max(open, arrivalMin) + state.dqMin : close + state.cqMin;
+      const qMin = latch ? Math.max(holdOpen, arrivalMin) + state.dqMin : close + state.cqMin;
       const edge = edges.next + clock.nextSkew;
       const nextHoldEdge = edges.nextHold + clock.nextSkew;
       const second = { arrivalMax: qMax + output.max, arrivalMin: qMin + output.min,
